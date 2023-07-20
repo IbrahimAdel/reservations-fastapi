@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, delete
 
 from database.models import Table
+from utils.query_utilities import paginate
 from .tables_schemas import AddTableSchema
 
 
@@ -20,3 +21,24 @@ def is_table_number_taken(number: int, restaurant_id: int, db: Session):
         .limit(1)
     table_id = db.scalars(statement=statement).first()
     return table_id is not None
+
+
+def is_table_in_restaurant(table_id: int, restaurant_id: int, db: Session):
+    statement = select(Table)\
+        .with_only_columns(Table.id)\
+        .where(and_(Table.id == table_id, Table.restaurant_id == restaurant_id))\
+        .limit(1)
+    table_id = db.scalars(statement=statement).first()
+    return table_id is not None
+
+
+def get_tables_page(limit: int, offset: int, restaurant_id, db: Session):
+    statement = select(Table).where(Table.restaurant_id == restaurant_id)
+    return paginate(query=statement, limit=limit, offset=offset, db=db)
+
+
+def delete_table(table_id: int, restaurant_id: int, db: Session):
+    statement = delete(Table).where(and_(Table.id == table_id, Table.restaurant_id == restaurant_id))
+    result = db.execute(statement=statement)
+    db.commit()
+    return result
