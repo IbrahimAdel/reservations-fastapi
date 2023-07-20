@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
-from sqlalchemy import delete, and_, select
+from sqlalchemy import delete, and_, select, asc
 
 from database.models import Reservation
 from utils.query_utilities import paginate
@@ -35,5 +35,6 @@ def get_today_reservation(limit: int, offset: int, restaurant_id: int, db: Sessi
     start = datetime(today.year, today.month, today.day)
     end = start + timedelta(days=1) - timedelta(milliseconds=1)
     statement = select(Reservation)\
-        .where(and_(Reservation.start <= end, Reservation.end >= start, Reservation.restaurant_id == restaurant_id))
+        .where(and_(Reservation.start <= end, Reservation.end >= start, Reservation.restaurant_id == restaurant_id))\
+        .order_by(asc(Reservation.start))
     return paginate(query=statement, limit=limit, offset=offset, db=db)
