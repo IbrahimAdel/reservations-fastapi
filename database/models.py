@@ -1,7 +1,7 @@
 import enum
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Float, TIMESTAMP, func, Enum, UniqueConstraint
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, String, TIMESTAMP, func, Enum, UniqueConstraint
+from sqlalchemy.orm import relationship, deferred
 
 from .db import Base
 
@@ -31,7 +31,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String(55), nullable=False)
     name = Column(String(80), nullable=False)
-    hashed_password = Column(String(255), nullable=False)
+    hashed_password = deferred(Column(String(255), nullable=False))
     number = Column(String(4), default="0000")
     role = Column(Enum(Role))
     created_at = Column(TIMESTAMP(timezone=False), server_default=func.now())

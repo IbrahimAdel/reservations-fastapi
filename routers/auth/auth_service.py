@@ -1,27 +1,28 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from internals import auth as auth_handler
-from .schemas import UserRegisterSchema, UserLoginSchema
-from . import auth_repo as AuthRepo
+from deps.auth import encode_token, verify_password, get_password_hash
+from routers.auth.schemas import UserRegisterSchema, UserLoginSchema
+from routers.auth.auth_repo import is_email_name_taken, is_restaurant_name_taken, create_admin, get_user_for_login
 
-users = []
 
 async def register_user(user: UserRegisterSchema, db: Session):
-    email_taken = await AuthRepo.is_email_name_taken(user.email, db)
+    email_taken = is_email_name_taken(user.email, db)
     if email_taken:
         raise HTTPException(status_code=400, detail='email is taken')
-    restaurant_exists = await AuthRepo.is_restaurant_name_taken(user.restaurant_name, db)
+    restaurant_exists = is_restaurant_name_taken(name=user.restaurant_name, db=db)
     if restaurant_exists:
         raise HTTPException(status_code=400, detail="restaurant name is taken")
 
-    hashed_password = auth_handler.get_password_hash(user.password)
-    await AuthRepo.create_admin(user, hashed_password, db)
+    hashed_password = get_password_hash(password=user.password)
+    create_admin(user=user, hashed_pass=hashed_password, db=db)
 
 
 async def login_user(credentials: UserLoginSchema, db: Session):
-    user = await AuthRepo.get_user_email_and_pass(credentials.email.lower(), db)
-    if (user is None) or (not auth_handler.verify_password(credentials.password, user.hashed_password)):
+    user = await get_user_for_login(email=credentials.email.lower(), db=db)
+    if (user is None) or (not verify_password(plain_password=credentials.password,
+                                              hashed_password=user.hashed_password)):
         raise HTTPException(status_code=401, detail='Invalid username or password')
-    token = auth_handler.encode_token(user.email)
+
+    token = encode_token(user.id, user.restaurant_id)
     return {"access_token": token}
