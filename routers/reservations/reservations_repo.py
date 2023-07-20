@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
-from sqlalchemy import delete, and_, select, asc
+from sqlalchemy import delete, and_, select, asc, func, or_, between
+from sqlalchemy.sql.functions import count
 
 from database.models import Reservation
 from utils.query_utilities import paginate
@@ -38,3 +39,21 @@ def get_today_reservation(limit: int, offset: int, restaurant_id: int, db: Sessi
         .where(and_(Reservation.start <= end, Reservation.end >= start, Reservation.restaurant_id == restaurant_id))\
         .order_by(asc(Reservation.start))
     return paginate(query=statement, limit=limit, offset=offset, db=db)
+
+
+def is_reservation_conflicts(restaurant_id: int, table_id: int, start: datetime, end: datetime, db: Session):
+    statement = select(Reservation.id)\
+        .where(and_(
+            or_(between(expr=Reservation.start, lower_bound=start, upper_bound=end),
+                between(expr=Reservation.end, lower_bound=start, upper_bound=end)),
+            Reservation.restaurant_id == restaurant_id,
+            Reservation.table_id == table_id
+        ))
+    c = db.scalars(statement=statement).first()
+    return c is not None
+
+
+def get_reservation_by_id(reservation_id: int, restaurant_id: int, db: Session):
+    statement = select(Reservation)\
+        .where(and_(Reservation.id == reservation_id, Reservation.restaurant_id == restaurant_id))
+    return db.scalars(statement=statement).first()

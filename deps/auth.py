@@ -20,7 +20,7 @@ def verify_password(plain_password, hashed_password):
 
 def encode_token(user_id: int, restaurant_id: int):
     payload = {
-        'exp': datetime.utcnow() + timedelta(days=0, hours=1),
+        'exp': datetime.utcnow() + timedelta(days=0, hours=6),
         'iat': datetime.utcnow(),
         'sub': user_id,
         'restaurant_id': restaurant_id
