@@ -20,3 +20,6 @@ def delete_reservation(reservation_id: int, restaurant_id: int, db: Session):
         raise HTTPException(status_code=404, detail="reservation not found")
 
     reservations_repo.delete_reservation(reservation_id=reservation_id, restaurant_id=restaurant_id, db=db)
+
+def get_today_reservation(limit: int, offset: int, restaurant_id: int, db: Session):
+    return reservations_repo.get_today_reservation(restaurant_id=restaurant_id, db=db, limit=limit, offset=offset)

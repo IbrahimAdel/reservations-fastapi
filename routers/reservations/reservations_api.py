@@ -23,3 +23,8 @@ def delete_reservation(reservation_id: int, current=Depends(current_user), db: S
     return {"success": True}
 
 
+@router.get('/today')
+def reservations_today(offset: int = 0, limit: int = 10, current=Depends(current_user), db: Session = Depends(get_db)):
+    restaurant_id = current.get('restaurant_id')
+    return reservations_service.get_today_reservation(restaurant_id=restaurant_id, db=db, limit=limit, offset=offset)
+
