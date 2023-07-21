@@ -47,6 +47,7 @@ def get_available_slots(restaurant_id: int, needed_capacity: int, from_time: dat
     reservations = reservations_repo.get_reservations_for_tables(from_time, to_time, tables_ids, db=db)
 
     intersections = find_reservation_intersections(reservations, table_count=len(tables_ids))
+    # inverting the intersections to get available reservation slots
     slots = []
     slot = {
         "start": from_time
@@ -56,9 +57,8 @@ def get_available_slots(restaurant_id: int, needed_capacity: int, from_time: dat
             slot.update({"end": i.get("start")})
             if slot.get("end") > slot.get("start"):
                 slots.append(slot)
-            print('slots')
-            print(slots)
         slot = {"start": i.get("end")}
+
     slot.update({"end": to_time})
     if (slot.get("start") != slot.get("end")):
         slots.append(slot)
