@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select, and_, delete
+from sqlalchemy import select, and_, delete, asc, func
 
 from database.models import Table
 from utils.query_utilities import paginate
@@ -42,3 +42,13 @@ def delete_table(table_id: int, restaurant_id: int, db: Session):
     result = db.execute(statement=statement)
     db.commit()
     return result
+
+def get_min_capacity(capacity: int, restaurant_id: int, db: Session):
+    statement = select(func.min(Table.capacity)).where(and_(Table.restaurant_id == restaurant_id, Table.capacity >= capacity))
+    return db.scalar(statement)
+
+
+def get_table_ids_with_min_capacity(min_capacity: int, restaurant_id: int, db: Session):
+    statement = select(Table)\
+        .where(and_(Table.capacity == min_capacity, Table.restaurant_id == restaurant_id))
+    return [table.id for table in db.scalars(statement)]

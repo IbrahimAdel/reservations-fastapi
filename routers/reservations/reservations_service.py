@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import List, Any, Dict
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -25,6 +28,7 @@ def delete_reservation(reservation_id: int, restaurant_id: int, db: Session):
 
     reservations_repo.delete_reservation(reservation_id=reservation_id, restaurant_id=restaurant_id, db=db)
 
+
 def get_today_reservation(limit: int, offset: int, restaurant_id: int, db: Session):
     return reservations_repo.get_today_reservation(restaurant_id=restaurant_id, db=db, limit=limit, offset=offset)
 
@@ -35,3 +39,60 @@ def get_reservation_by_id(reservation_id: int, restaurant_id: int, db: Session):
     if reservation is None:
         raise HTTPException(status_code=404, detail="reservation not found")
     return reservation
+
+
+def get_available_slots(restaurant_id: int, needed_capacity: int, from_time: datetime, to_time: datetime, db: Session):
+    min_capacity = tables_repo.get_min_capacity(needed_capacity, restaurant_id, db)
+    tables_ids = tables_repo.get_table_ids_with_min_capacity(min_capacity, restaurant_id, db=db)
+    reservations = reservations_repo.get_reservations_for_tables(from_time, to_time, tables_ids, db=db)
+
+    intersections = find_reservation_intersections(reservations, table_count=len(tables_ids))
+    slots = []
+    slot = {
+        "start": from_time
+    }
+    for i in intersections:
+        if i.get("start") > slot.get("start"):
+            slot.update({"end": i.get("start")})
+            if slot.get("end") > slot.get("start"):
+                slots.append(slot)
+            print('slots')
+            print(slots)
+        slot = {"start": i.get("end")}
+    slot.update({"end": to_time})
+    if (slot.get("start") != slot.get("end")):
+        slots.append(slot)
+
+    return slots
+
+
+def find_reservation_intersections(reservations: list, table_count: int):
+    intersections: List[Dict[str, Any]] = []
+    if len(reservations) == 0:
+        return intersections
+
+    for idx, current in enumerate(reservations):
+        if idx == 0:
+            intersections.append({
+                "start": current.start,
+                "end": current.end,
+                "table_ids": {current.table_id}
+            })
+        else:
+            last = intersections[len(intersections) - 1]
+            max_start = max([last.get('start', None), current.start])
+            min_end = min([last.get('end', None), current.end])
+            if max_start < min_end:
+                last.update({
+                    "start": max_start,
+                    "end": min_end,
+                    "table_ids": {current.table_id}
+                })
+            else:
+                intersections.append({
+                    "start": current.start,
+                    "end": current.end,
+                    "table_ids": {current.table_id}
+                })
+
+    return list(filter(lambda x: len(x.get("table_ids")) == table_count, intersections))

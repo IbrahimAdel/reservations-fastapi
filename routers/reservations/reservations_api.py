@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from fastapi import Depends
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from database.db import get_db
 from deps.auth import current_user
@@ -27,6 +28,14 @@ def delete_reservation(reservation_id: int, current=Depends(current_user), db: S
 def reservations_today(offset: int = 0, limit: int = 10, current=Depends(current_user), db: Session = Depends(get_db)):
     restaurant_id = current.get('restaurant_id')
     return reservations_service.get_today_reservation(restaurant_id=restaurant_id, db=db, limit=limit, offset=offset)
+
+
+@router.get('/available')
+def available_slots(from_time: datetime, to_time: datetime, min_capacity: int,
+                    current=Depends(current_user), db: Session = Depends(get_db)):
+    restaurant_id = current.get('restaurant_id')
+    return reservations_service.get_available_slots(from_time=from_time, to_time=to_time, needed_capacity=min_capacity,
+                                                    restaurant_id=restaurant_id, db=db)
 
 
 @router.get('/{reservation_id}')

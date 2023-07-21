@@ -56,7 +56,7 @@ class Table(Base):
     UniqueConstraint("number", "restaurant_id", name="restaurant_table_uc1"),
 
     def __repr__(self):
-        return 'TableModel(name=%s)' % self.name
+        return 'TableModel(id=%s)' % self.id
 
 
 class Reservation(Base):

@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
+from typing import List
 
 from sqlalchemy.orm import Session
-from sqlalchemy import delete, and_, select, asc, func, or_, between
-from sqlalchemy.sql.functions import count
+from sqlalchemy import delete, and_, select, asc, or_, between, column
 
 from database.models import Reservation
 from utils.query_utilities import paginate
@@ -45,7 +45,8 @@ def is_reservation_conflicts(restaurant_id: int, table_id: int, start: datetime,
     statement = select(Reservation.id)\
         .where(and_(
             or_(between(expr=Reservation.start, lower_bound=start, upper_bound=end),
-                between(expr=Reservation.end, lower_bound=start, upper_bound=end)),
+                between(expr=Reservation.end, lower_bound=start, upper_bound=end),
+                and_(Reservation.start < start, Reservation.end > end)),
             Reservation.restaurant_id == restaurant_id,
             Reservation.table_id == table_id
         ))
@@ -57,3 +58,15 @@ def get_reservation_by_id(reservation_id: int, restaurant_id: int, db: Session):
     statement = select(Reservation)\
         .where(and_(Reservation.id == reservation_id, Reservation.restaurant_id == restaurant_id))
     return db.scalars(statement=statement).first()
+
+
+def get_reservations_for_tables(from_time: datetime, to_time: datetime, table_ids: List[int], db: Session):
+    statement = select(Reservation)\
+        .where(and_(
+            or_(between(expr=Reservation.start, lower_bound=from_time, upper_bound=to_time),
+                between(expr=Reservation.end, lower_bound=from_time, upper_bound=to_time),
+                and_(Reservation.start < from_time, Reservation.end > to_time)),
+            column('table_id').in_(table_ids)
+    )).order_by(asc(Reservation.start))
+    return [reservation for reservation in db.scalars(statement=statement).all()]
+
