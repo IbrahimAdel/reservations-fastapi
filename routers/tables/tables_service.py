@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from . import tables_repo
-from ..reservations.reservations_repo import reservations_repo
+from ..reservations import reservations_repo
 from .tables_schemas import AddTableSchema
 
 
