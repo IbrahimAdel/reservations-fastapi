@@ -11,8 +11,6 @@ from . import reservations_repo
 
 def add_reservation(reservation: AddReservationSchema, restaurant_id: int, db: Session):
     table = tables_repo.get_table_id_and_capacity(table_id=reservation.table_id, restaurant_id=restaurant_id, db=db)
-    print('table')
-    print(table)
     if not table:
         raise HTTPException(status_code=404, detail="table not found")
     table_capacity = table.get('capacity')
