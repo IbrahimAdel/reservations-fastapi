@@ -21,9 +21,7 @@ def is_restaurant_name_taken(name: str, db: Session):
         .limit(1)
     result = db.scalars(statement).first()
 
-    if result is None:
-        return False
-    return True
+    return result is not None
 
 
 def is_email_name_taken(email: str, db: Session):
@@ -32,9 +30,7 @@ def is_email_name_taken(email: str, db: Session):
         .where(and_(User.email == email.lower()))\
         .limit(1)
     result = db.scalars(statement).first()
-    if result is None:
-        return False
-    return True
+    return result is not None
 
 
 def get_user_for_login(email: str, db: Session):
