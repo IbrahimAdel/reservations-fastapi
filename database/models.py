@@ -38,6 +38,8 @@ class User(Base):
     updated_at = Column(TIMESTAMP(timezone=False), server_default=func.now(), onupdate=func.now())
     restaurant_id = Column(Integer, ForeignKey("restaurants.id", onupdate="cascade", ondelete="cascade"), index=True)
 
+    __table_args__ = (UniqueConstraint("number", "restaurant_id", name="restaurant_user_uc1"),)
+
     def __repr__(self):
         return 'UserModel(name=%s)' % self.name
 
@@ -53,7 +55,7 @@ class Table(Base):
     restaurant_id = Column(Integer, ForeignKey("restaurants.id", onupdate="cascade", ondelete="cascade"), index=True)
     reservations = relationship("Reservation", backref="table")
 
-    UniqueConstraint("number", "restaurant_id", name="restaurant_table_uc1"),
+    __table_args__ = (UniqueConstraint("number", "restaurant_id", name="restaurant_table_uc1"),)
 
     def __repr__(self):
         return 'TableModel(id=%s)' % self.id

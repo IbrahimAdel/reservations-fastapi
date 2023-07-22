@@ -16,6 +16,7 @@ app.include_router(router=users_api.router)
 app.include_router(router=tables_api.router)
 app.include_router(router=reservations_api.router)
 
+# TODO. only for dev, use migrations for production.
 models.Base.metadata.create_all(bind=db.engine)
 
 
