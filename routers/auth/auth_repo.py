@@ -2,7 +2,7 @@ from sqlalchemy import and_, select
 from sqlalchemy.orm import Session
 
 from database.models import User, Role, Restaurant
-from .schemas import UserRegisterSchema
+from .auth_schema import UserRegisterSchema
 
 
 def create_admin(user: UserRegisterSchema, hashed_pass: str, db: Session):

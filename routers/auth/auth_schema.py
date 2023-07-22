@@ -1,7 +1,4 @@
 from pydantic import BaseModel, EmailStr
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-
-from database.models import User
 
 
 class UserRegisterSchema(BaseModel):
@@ -18,9 +15,6 @@ class UserLoginSchema(BaseModel):
 
 class RefreshTokensSchema(BaseModel):
     refresh_token: str
-
-
-UserRegisterResponse = sqlalchemy_to_pydantic(User)
 
 
 class LoginResponse(BaseModel):

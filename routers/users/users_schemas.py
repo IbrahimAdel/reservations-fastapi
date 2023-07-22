@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import BaseModel, Field, NaiveDatetime, EmailStr
+from pydantic import BaseModel, Field, NaiveDatetime, EmailStr, ConfigDict
 
 
 class AddUserSchema(BaseModel):
@@ -11,6 +11,8 @@ class AddUserSchema(BaseModel):
 
 
 class UserModelResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     number: str
     id: int
     created_at: NaiveDatetime

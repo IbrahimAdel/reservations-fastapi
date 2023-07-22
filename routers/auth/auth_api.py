@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from database.db import get_db
-from .schemas import UserRegisterSchema, UserLoginSchema, LoginResponse, RefreshTokensSchema, RefreshTokensResponse
+from .auth_schema import UserRegisterSchema, UserLoginSchema, LoginResponse, RefreshTokensSchema, RefreshTokensResponse
 from . import auth_service
 from ..users.users_schemas import UserModelResponse
 
