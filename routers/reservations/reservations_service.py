@@ -1,4 +1,4 @@
-from datetime import datetime
+from pydantic import NaiveDatetime
 from typing import List, Any, Dict
 
 from fastapi import HTTPException
@@ -54,15 +54,22 @@ def update_reservation_by_id(reservation_id: int, update: UpdateReservationSchem
     if reservation is None:
         raise HTTPException(status_code=404, detail="reservation not found")
 
-    if reservation.start < datetime.now():
+    if reservation.start < NaiveDatetime.utcnow():
         raise HTTPException(status_code=400, detail="can not edit past reservations")
+
+    reservation_conflict = reservations_repo.is_reservation_conflicts(
+        restaurant_id=restaurant_id, table_id=reservation.table_id, start=reservation.start, end=reservation.end, db=db
+    )
+    if reservation_conflict:
+        raise HTTPException(status_code=400, detail="conflict with other reservation")
 
     reservations_repo.update_reservation(reservation_id, restaurant_id, reservation_update=update, db=db)
     db.refresh(reservation)
     return reservation
 
 
-def get_available_slots(restaurant_id: int, needed_capacity: int, from_time: datetime, to_time: datetime, db: Session):
+def get_available_slots(restaurant_id: int, needed_capacity: int, from_time: NaiveDatetime,
+                        to_time: NaiveDatetime, db: Session):
     min_capacity = tables_repo.get_min_capacity(needed_capacity, restaurant_id, db)
     tables_ids = tables_repo.get_table_ids_with_min_capacity(min_capacity, restaurant_id, db=db)
     reservations = reservations_repo.get_reservations_for_tables(from_time, to_time, tables_ids, db=db)
