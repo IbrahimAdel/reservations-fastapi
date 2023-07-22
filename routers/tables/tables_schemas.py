@@ -1,10 +1,7 @@
 from typing import List
 
-from pydantic import BaseModel, PositiveInt
-
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
-
-from database.models import Table
+from pydantic import BaseModel, PositiveInt, ConfigDict
+from datetime import datetime
 
 
 class AddTableSchema(BaseModel):
@@ -12,7 +9,15 @@ class AddTableSchema(BaseModel):
     capacity: PositiveInt
 
 
-TableModelResponse = sqlalchemy_to_pydantic(Table)
+class TableModelResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    number: int
+    capacity: int
+    created_at: datetime
+    updated_at: datetime
+    restaurant_id: int
 
 
 class TablePageResponse(BaseModel):

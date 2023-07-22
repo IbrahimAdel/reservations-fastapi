@@ -20,6 +20,7 @@ class UpdateReservationSchema(BaseModel):
 
 class ReservationModelResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+
     id: int
     start: datetime
     end: datetime
