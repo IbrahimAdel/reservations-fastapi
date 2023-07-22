@@ -1,14 +1,15 @@
+import os
+
 import jwt
 from fastapi import HTTPException, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
-from decouple import config
 
 security = HTTPBearer()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-access_token_secret = config('JWT_SECRET')
-refresh_token_secret = config('JWT_REFRESH_SECRET')
+access_token_secret = os.environ.get('JWT_SECRET')
+refresh_token_secret = os.environ.get('JWT_REFRESH_SECRET')
 
 
 def get_password_hash(password):

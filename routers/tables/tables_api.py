@@ -33,4 +33,5 @@ def get_tables_page(limit: int = 10, offset: int = 0, current=Depends(current_us
 def delete_table(table_id: int, current=Depends(current_user),
                  db: Session = Depends(get_db)) -> DeleteTableResponse:
     restaurant_id = current.get('restaurant_id')
+    is_admin(user_id=current.get('sub'), db=db)
     return tables_service.delete_table(table_id=table_id, restaurant_id=restaurant_id, db=db)
