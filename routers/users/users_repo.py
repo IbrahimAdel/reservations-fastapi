@@ -1,17 +1,20 @@
-from sqlalchemy.orm import Session, defer
-from sqlalchemy import select, and_
+from sqlalchemy.orm import Session
+from sqlalchemy import select, and_, insert
 
 from database.models import User, Role
 from routers.users.users_schemas import AddUserSchema
 
 
 def create_user(user: AddUserSchema, hashed_pass: str, restaurant_id: int, db: Session):
-    user_to_create = User(email=user.email.lower(), hashed_password=hashed_pass, name=user.name, role=Role.USER,
-                          restaurant_id=restaurant_id, number=user.number.rjust(4, '0'))
-    db.add(user_to_create)
+    statement = insert(User)\
+        .values(email=user.email.lower(), hashed_password=hashed_pass, name=user.name, role=Role.USER,
+                restaurant_id=restaurant_id, number=user.number.rjust(4, '0'))\
+        .returning(User.id, User.email, User.name, User.role, User.restaurant_id,
+                   User.number, User.created_at, User.updated_at)
+    result = db.execute(statement=statement).mappings().first()
     db.commit()
-    db.refresh(user_to_create)
-    return user_to_create
+    print(result)
+    return result
 
 
 def get_user_by_id(user_id: int, db: Session):

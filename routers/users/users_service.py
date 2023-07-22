@@ -13,7 +13,7 @@ def add_user(user: AddUserSchema, restaurant_id: int, db: Session):
         raise HTTPException(status_code=400, detail='email is taken')
     hashed_password = AuthHandler.get_password_hash(user.password)
     created_user = UsersRepo.create_user(user, hashed_password, restaurant_id, db)
-    return created_user;
+    return created_user
 
 
 def get_current_user(user_id: int, db: Session):

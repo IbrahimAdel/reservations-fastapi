@@ -2,16 +2,16 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from database.db import get_db
-from .schemas import UserRegisterSchema, UserLoginSchema, UserRegisterResponse, LoginResponse, RefreshTokensSchema, \
-    RefreshTokensResponse
+from .schemas import UserRegisterSchema, UserLoginSchema, LoginResponse, RefreshTokensSchema, RefreshTokensResponse
 from . import auth_service
+from ..users.users_schemas import UserModelResponse
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 
 
 @router.post('/register', status_code=201)
-async def register(user: UserRegisterSchema, db: Session = Depends(get_db)) -> UserRegisterResponse:
-    await auth_service.register_user(user, db)
+def register(user: UserRegisterSchema, db: Session = Depends(get_db)) -> UserModelResponse:
+    user = auth_service.register_user(user, db)
     return user
 
 
