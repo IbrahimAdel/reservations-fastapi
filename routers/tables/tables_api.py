@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from database.db import get_db
 from deps.authorization import is_admin
+from utils.error_schemas import UnauthorizedResponse
 from . import tables_service
 from deps.auth import current_user
 from routers.tables.tables_schemas import AddTableSchema, TableModelResponse, TablePageResponse, DeleteTableResponse
@@ -10,7 +11,7 @@ from routers.tables.tables_schemas import AddTableSchema, TableModelResponse, Ta
 router = APIRouter(prefix='/tables', tags=['tables'])
 
 
-@router.post('/', status_code=201)
+@router.post('/', status_code=201, responses={403:{"model": UnauthorizedResponse}})
 def add_table_to_restaurant(table: AddTableSchema, current=Depends(current_user),
                             db: Session = Depends(get_db)) -> TableModelResponse:
     # throw if not admin

@@ -41,14 +41,16 @@ def get_today_reservation(limit: int, offset: int, restaurant_id: int, db: Sessi
     return paginate(query=statement, limit=limit, offset=offset, db=db)
 
 
-def is_reservation_conflicts(restaurant_id: int, table_id: int, start: datetime, end: datetime, db: Session):
+def is_reservation_conflicts(restaurant_id: int, table_id: int, current_reservation_id: int | None,
+                             start: datetime, end: datetime, db: Session):
     statement = select(Reservation.id)\
         .where(and_(
             or_(between(expr=Reservation.start, lower_bound=start, upper_bound=end),
                 between(expr=Reservation.end, lower_bound=start, upper_bound=end),
                 and_(Reservation.start < start, Reservation.end > end)),
             Reservation.restaurant_id == restaurant_id,
-            Reservation.table_id == table_id
+            Reservation.table_id == table_id,
+            Reservation.id != current_reservation_id
         ))
     c = db.scalars(statement=statement).first()
     return c is not None

@@ -14,7 +14,7 @@ from . import reservations_service
 router = APIRouter(prefix='/reservations', tags=['reservations'])
 
 
-@router.post('')
+@router.post('', status_code=201)
 def add_reservation(reservation: AddReservationSchema, current=Depends(current_user),
                     db: Session = Depends(get_db)) -> ReservationModelResponse:
     restaurant_id = current.get('restaurant_id')

@@ -7,3 +7,7 @@ class NotFoundResponse(BaseModel):
 
 class BadRequestResponse(BaseModel):
     detail: str
+
+
+class UnauthorizedResponse(BaseModel):
+    detail: str
