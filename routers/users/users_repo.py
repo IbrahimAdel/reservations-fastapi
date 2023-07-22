@@ -17,6 +17,14 @@ def create_user(user: AddUserSchema, hashed_pass: str, restaurant_id: int, db: S
     return result
 
 
+def is_number_name_taken(number: str, restaurant_id, db: Session):
+    statement = select(User) \
+        .with_only_columns(User.email) \
+        .where(and_(User.number == number.rjust(4, '0'), User.restaurant_id == restaurant_id))\
+        .limit(1)
+    result = db.execute(statement).mappings().first()
+    return result is not None
+
 def get_user_by_id(user_id: int, db: Session):
     statement = select(User)\
         .where(and_(User.id == user_id))\
