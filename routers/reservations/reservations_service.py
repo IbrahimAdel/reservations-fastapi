@@ -4,7 +4,7 @@ from typing import List, Any, Dict
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from .reservations_schemas import AddReservationSchema
+from .reservations_schemas import AddReservationSchema, UpdateReservationSchema
 from ..tables import tables_repo
 from . import reservations_repo
 
@@ -38,6 +38,21 @@ def get_reservation_by_id(reservation_id: int, restaurant_id: int, db: Session):
                                                           restaurant_id=restaurant_id, db=db)
     if reservation is None:
         raise HTTPException(status_code=404, detail="reservation not found")
+    return reservation
+
+
+def update_reservation_by_id(reservation_id: int, update: UpdateReservationSchema, restaurant_id: int, db: Session):
+    reservation = reservations_repo.get_reservation_by_id(reservation_id=reservation_id,
+                                                          restaurant_id=restaurant_id, db=db)
+    if reservation is None:
+        raise HTTPException(status_code=404, detail="reservation not found")
+    print(reservation.start)
+    print(datetime.now())
+    print(reservation.start > datetime.now())
+    if reservation.start < datetime.now():
+        raise HTTPException(status_code=400, detail="can not edit past reservations")
+    reservations_repo.update_reservation(reservation_id, restaurant_id, reservation_update=update, db=db)
+    db.refresh(reservation)
     return reservation
 
 

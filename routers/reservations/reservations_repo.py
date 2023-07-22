@@ -2,11 +2,11 @@ from datetime import datetime, timedelta
 from typing import List
 
 from sqlalchemy.orm import Session
-from sqlalchemy import delete, and_, select, asc, or_, between, column
+from sqlalchemy import delete, and_, select, asc, or_, between, column, update
 
 from database.models import Reservation
 from utils.query_utilities import paginate
-from .reservations_schemas import AddReservationSchema
+from .reservations_schemas import AddReservationSchema, UpdateReservationSchema
 
 
 def add_reservation(reservation: AddReservationSchema, restaurant_id: int, db: Session):
@@ -58,6 +58,16 @@ def get_reservation_by_id(reservation_id: int, restaurant_id: int, db: Session):
     statement = select(Reservation)\
         .where(and_(Reservation.id == reservation_id, Reservation.restaurant_id == restaurant_id))
     return db.scalars(statement=statement).first()
+
+
+def update_reservation(reservation_id: int, restaurant_id: int,
+                       reservation_update: UpdateReservationSchema, db: Session):
+    statement = update(Reservation)\
+        .where(and_(Reservation.id == reservation_id, Reservation.restaurant_id == restaurant_id))\
+        .values(start=reservation_update.start, end=reservation_update.end)
+    db.execute(statement)
+    db.commit()
+    return
 
 
 def get_reservations_for_tables(from_time: datetime, to_time: datetime, table_ids: List[int], db: Session):

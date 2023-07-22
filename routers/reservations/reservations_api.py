@@ -5,7 +5,7 @@ from datetime import datetime
 
 from database.db import get_db
 from deps.auth import current_user
-from .reservations_schemas import AddReservationSchema
+from .reservations_schemas import AddReservationSchema, UpdateReservationSchema
 from . import reservations_service
 
 router = APIRouter(prefix='/reservations', tags=['reservations'])
@@ -42,4 +42,12 @@ def available_slots(from_time: datetime, to_time: datetime, min_capacity: int,
 def reservations_today(reservation_id: int, current=Depends(current_user), db: Session = Depends(get_db)):
     restaurant_id = current.get('restaurant_id')
     return reservations_service.get_reservation_by_id(restaurant_id=restaurant_id, db=db, reservation_id=reservation_id)
+
+
+@router.put('/{reservation_id}')
+def update_reservation(reservation_id: int, update: UpdateReservationSchema,
+                       current=Depends(current_user), db: Session = Depends(get_db)):
+    restaurant_id = current.get('restaurant_id')
+    return reservations_service.update_reservation_by_id(restaurant_id=restaurant_id, update=update,
+                                                         db=db, reservation_id=reservation_id)
 
