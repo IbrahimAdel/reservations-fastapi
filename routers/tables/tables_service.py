@@ -2,6 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from . import tables_repo
+from ..reservations.reservations_repo import reservations_repo
 from .tables_schemas import AddTableSchema
 
 
@@ -19,5 +20,8 @@ def get_tables_page(limit: int, offset: int, restaurant_id: int, db: Session):
 def delete_table(table_id: int, restaurant_id: int, db: Session):
     if not tables_repo.is_table_in_restaurant(table_id=table_id, restaurant_id=restaurant_id, db=db):
         raise HTTPException(status_code=404, detail="table not found")
+    if reservations_repo.is_there_future_reservation_for_table(table_id, db):
+        raise HTTPException(status_code=400, detail="table has future reservations")
+
     tables_repo.delete_table(table_id=table_id, restaurant_id=restaurant_id, db=db)
     return {"success": True}

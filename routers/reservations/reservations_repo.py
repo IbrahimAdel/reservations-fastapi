@@ -80,3 +80,11 @@ def get_reservations_for_tables(from_time: datetime, to_time: datetime, table_id
     )).order_by(asc(Reservation.start))
     return [reservation for reservation in db.scalars(statement=statement).all()]
 
+
+def is_there_future_reservation_for_table(table_id: int, db: Session):
+    now = datetime.utcnow()
+    statement = select(Reservation.id)\
+        .select_from(Reservation).limit(1)\
+        .where(and_(Reservation.start > now, Reservation.table_id == table_id))
+    result = db.execute(statement).mappings().all()
+    return len(result) > 0
