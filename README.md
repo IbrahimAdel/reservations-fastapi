@@ -4,6 +4,8 @@ This Repo is a simple restaurant reservation backend solution. The system suppor
 
 
 ## How to run
+Copy the content of `sample.env` file into a new `.env` file.
+
 if you have make command running you can run these two commands 
 ```bash
 make start
