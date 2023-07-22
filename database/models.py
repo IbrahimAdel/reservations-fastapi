@@ -36,7 +36,7 @@ class User(Base):
     role = Column(Enum(Role))
     created_at = Column(TIMESTAMP(timezone=False), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=False), server_default=func.now(), onupdate=func.now())
-    restaurant_id = Column(Integer, ForeignKey("restaurants.id"), index=True)
+    restaurant_id = Column(Integer, ForeignKey("restaurants.id", onupdate="cascade", ondelete="cascade"), index=True)
 
     def __repr__(self):
         return 'UserModel(name=%s)' % self.name
@@ -50,7 +50,7 @@ class Table(Base):
     capacity = Column(Integer, default=4)
     created_at = Column(TIMESTAMP(timezone=False), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=False), server_default=func.now(), onupdate=func.now())
-    restaurant_id = Column(Integer, ForeignKey("restaurants.id"), index=True)
+    restaurant_id = Column(Integer, ForeignKey("restaurants.id", onupdate="cascade", ondelete="cascade"), index=True)
     reservations = relationship("Reservation", backref="table")
 
     UniqueConstraint("number", "restaurant_id", name="restaurant_table_uc1"),
@@ -66,8 +66,8 @@ class Reservation(Base):
     start = Column(TIMESTAMP(timezone=False), nullable=False, index=True)
     end = Column(TIMESTAMP(timezone=False), nullable=False, index=True)
     capacity_needed = Column(Integer, nullable=False)
-    table_id = Column(Integer, ForeignKey("tables.id"), index=True)
-    restaurant_id = Column(Integer, ForeignKey("restaurants.id"), index=True)
+    table_id = Column(Integer, ForeignKey("tables.id", onupdate="cascade", ondelete="SET NULL"), index=True)
+    restaurant_id = Column(Integer, ForeignKey("restaurants.id", onupdate="cascade", ondelete="cascade"), index=True)
     created_at = Column(TIMESTAMP(timezone=False), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=False), server_default=func.now(), onupdate=func.now())
 
