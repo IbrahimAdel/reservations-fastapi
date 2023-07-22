@@ -1,8 +1,9 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from deps.auth import encode_token, verify_password, get_password_hash
-from routers.auth.schemas import UserRegisterSchema, UserLoginSchema
+from deps.auth import encode_access_token, verify_password, get_password_hash, encode_refresh_token,\
+    decode_refresh_token
+from routers.auth.schemas import UserRegisterSchema, UserLoginSchema, RefreshTokensResponse
 from routers.auth.auth_repo import is_email_name_taken, is_restaurant_name_taken, create_admin, get_user_for_login
 
 
@@ -24,5 +25,14 @@ async def login_user(credentials: UserLoginSchema, db: Session):
                                               hashed_password=user.hashed_password)):
         raise HTTPException(status_code=401, detail='Invalid username or password')
 
-    token = encode_token(user.id, user.restaurant_id)
-    return {"access_token": token}
+    access_token = encode_access_token(user.id, user.restaurant_id)
+    refresh_token = encode_refresh_token(user.id, user.restaurant_id)
+    return {"access_token": access_token, "refresh_token": refresh_token}
+
+
+def refresh_tokens(token: str) -> RefreshTokensResponse:
+    payload = decode_refresh_token(token)
+    access_token = encode_access_token(user_id=payload.get('sub'), restaurant_id=payload.get('restaurant_id'))
+    refresh_token = encode_refresh_token(user_id=payload.get('sub'), restaurant_id=payload.get('restaurant_id'))
+
+    return RefreshTokensResponse(access_token=access_token, refresh_token=refresh_token)
