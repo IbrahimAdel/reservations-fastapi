@@ -36,7 +36,7 @@ class User(Base):
     role = Column(Enum(Role))
     created_at = Column(TIMESTAMP(timezone=False), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=False), server_default=func.now(), onupdate=func.now())
-    restaurant_id = Column(Integer, ForeignKey("restaurants.id"))
+    restaurant_id = Column(Integer, ForeignKey("restaurants.id"), index=True)
 
     def __repr__(self):
         return 'UserModel(name=%s)' % self.name
@@ -50,7 +50,7 @@ class Table(Base):
     capacity = Column(Integer, default=4)
     created_at = Column(TIMESTAMP(timezone=False), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=False), server_default=func.now(), onupdate=func.now())
-    restaurant_id = Column(Integer, ForeignKey("restaurants.id"))
+    restaurant_id = Column(Integer, ForeignKey("restaurants.id"), index=True)
     reservations = relationship("Reservation", backref="table")
 
     UniqueConstraint("number", "restaurant_id", name="restaurant_table_uc1"),
@@ -63,12 +63,13 @@ class Reservation(Base):
     __tablename__ = "reservations"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    start = Column(TIMESTAMP(timezone=False), nullable=False)
-    end = Column(TIMESTAMP(timezone=False), nullable=False)
+    start = Column(TIMESTAMP(timezone=False), nullable=False, index=True)
+    end = Column(TIMESTAMP(timezone=False), nullable=False, index=True)
+    capacity_needed = Column(Integer, nullable=False)
+    table_id = Column(Integer, ForeignKey("tables.id"), index=True)
+    restaurant_id = Column(Integer, ForeignKey("restaurants.id"), index=True)
     created_at = Column(TIMESTAMP(timezone=False), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=False), server_default=func.now(), onupdate=func.now())
-    table_id = Column(Integer, ForeignKey("tables.id"))
-    restaurant_id = Column(Integer, ForeignKey("restaurants.id"))
 
     def __repr__(self):
         return 'ReservationModel(id=%s)' % self.id

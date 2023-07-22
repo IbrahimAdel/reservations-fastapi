@@ -10,7 +10,7 @@ from .reservations_schemas import AddReservationSchema, UpdateReservationSchema
 
 
 def add_reservation(reservation: AddReservationSchema, restaurant_id: int, db: Session):
-    r = Reservation(restaurant_id=restaurant_id, start=reservation.start,
+    r = Reservation(restaurant_id=restaurant_id, start=reservation.start, capacity_needed=reservation.capacity_needed,
                     end=reservation.end, table_id=reservation.table_id)
     db.add(r)
     db.commit()

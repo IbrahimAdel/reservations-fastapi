@@ -32,6 +32,17 @@ def is_table_in_restaurant(table_id: int, restaurant_id: int, db: Session):
     return table_id is not None
 
 
+def get_table_id_and_capacity(table_id: int, restaurant_id: int, db: Session):
+    statement = select(Table.id, Table.capacity)\
+        .select_from(Table)\
+        .where(and_(Table.id == table_id, Table.restaurant_id == restaurant_id))\
+        .limit(1)
+    result = db.execute(statement=statement).first()
+    if result is None:
+        return result
+    return dict(zip(["id", "capacity"], result))
+
+
 def get_tables_page(limit: int, offset: int, restaurant_id, db: Session):
     statement = select(Table).where(Table.restaurant_id == restaurant_id)
     return paginate(query=statement, limit=limit, offset=offset, db=db)
@@ -44,7 +55,8 @@ def delete_table(table_id: int, restaurant_id: int, db: Session):
     return result
 
 def get_min_capacity(capacity: int, restaurant_id: int, db: Session):
-    statement = select(func.min(Table.capacity)).where(and_(Table.restaurant_id == restaurant_id, Table.capacity >= capacity))
+    statement = select(func.min(Table.capacity))\
+        .where(and_(Table.restaurant_id == restaurant_id, Table.capacity >= capacity))
     return db.scalar(statement)
 
 

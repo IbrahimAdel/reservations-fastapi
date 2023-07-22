@@ -10,9 +10,18 @@ from . import reservations_repo
 
 
 def add_reservation(reservation: AddReservationSchema, restaurant_id: int, db: Session):
-    table_exists = tables_repo.is_table_in_restaurant(table_id=reservation.table_id, restaurant_id=restaurant_id, db=db)
-    if not table_exists:
+    table = tables_repo.get_table_id_and_capacity(table_id=reservation.table_id, restaurant_id=restaurant_id, db=db)
+    print('table')
+    print(table)
+    if not table:
         raise HTTPException(status_code=404, detail="table not found")
+    table_capacity = table.get('capacity')
+    if table_capacity < reservation.capacity_needed:
+        raise HTTPException(status_code=400, detail="needed capacity is more than the table's capacity")
+    acceptable_capacity = tables_repo.get_min_capacity(reservation.capacity_needed, restaurant_id, db)
+    if table_capacity > acceptable_capacity:
+        raise HTTPException(status_code=400, detail=f"maximum acceptable table capacity is {acceptable_capacity}")
+
     reservation_conflict = reservations_repo.is_reservation_conflicts(
         restaurant_id=restaurant_id, table_id=reservation.table_id, start=reservation.start, end=reservation.end, db=db
     )
@@ -46,11 +55,10 @@ def update_reservation_by_id(reservation_id: int, update: UpdateReservationSchem
                                                           restaurant_id=restaurant_id, db=db)
     if reservation is None:
         raise HTTPException(status_code=404, detail="reservation not found")
-    print(reservation.start)
-    print(datetime.now())
-    print(reservation.start > datetime.now())
+
     if reservation.start < datetime.now():
         raise HTTPException(status_code=400, detail="can not edit past reservations")
+
     reservations_repo.update_reservation(reservation_id, restaurant_id, reservation_update=update, db=db)
     db.refresh(reservation)
     return reservation
