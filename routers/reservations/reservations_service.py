@@ -75,7 +75,7 @@ def get_available_slots(restaurant_id: int, needed_capacity: int, from_time: dat
         slot = {"start": i.get("end")}
 
     slot.update({"end": to_time})
-    if (slot.get("start") != slot.get("end")):
+    if slot.get("start") != slot.get("end"):
         slots.append(slot)
 
     return slots
