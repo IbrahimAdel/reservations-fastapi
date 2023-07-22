@@ -19,8 +19,8 @@ def register_user(user: UserRegisterSchema, db: Session):
     return create_admin(user=user, hashed_pass=hashed_password, db=db)
 
 
-async def login_user(credentials: UserLoginSchema, db: Session):
-    user = await get_user_for_login(email=credentials.email.lower(), db=db)
+def login_user(credentials: UserLoginSchema, db: Session):
+    user = get_user_for_login(email=credentials.email.lower(), db=db)
     if (user is None) or (not verify_password(plain_password=credentials.password,
                                               hashed_password=user.hashed_password)):
         raise HTTPException(status_code=401, detail='Invalid username or password')

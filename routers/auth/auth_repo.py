@@ -37,7 +37,7 @@ def is_email_name_taken(email: str, db: Session):
     return True
 
 
-async def get_user_for_login(email: str, db: Session):
+def get_user_for_login(email: str, db: Session):
     statement = select(User)\
         .with_only_columns(User.id, User.hashed_password, User.restaurant_id) \
         .where(and_(User.email == email))\

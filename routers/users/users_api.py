@@ -10,12 +10,12 @@ router = APIRouter(prefix='/users', tags=['users'])
 
 
 @router.post('/', status_code=201)
-async def add_user(user: AddUserSchema, current=Depends(current_user),
+def add_user(user: AddUserSchema, current=Depends(current_user),
                    db: Session = Depends(get_db)) -> UserModelResponse:
     created_user = users_service.add_user(user, current.get('restaurant_id'), db)
     return created_user
 
 @router.get('/me')
-async def me(current=Depends(current_user), db: Session = Depends(get_db)) -> UserModelResponse:
+def me(current=Depends(current_user), db: Session = Depends(get_db)) -> UserModelResponse:
     user = users_service.get_current_user(int(current.get('sub')), db)
     return user

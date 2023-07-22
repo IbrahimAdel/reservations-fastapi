@@ -16,8 +16,8 @@ def register(user: UserRegisterSchema, db: Session = Depends(get_db)) -> UserMod
 
 
 @router.post('/login')
-async def login(credentials: UserLoginSchema, db: Session = Depends(get_db)) -> LoginResponse:
-    result = await auth_service.login_user(credentials, db)
+def login(credentials: UserLoginSchema, db: Session = Depends(get_db)) -> LoginResponse:
+    result = auth_service.login_user(credentials, db)
     return result
 
 
