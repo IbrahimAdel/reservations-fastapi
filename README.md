@@ -18,3 +18,5 @@ docker-compose up -d
 alembic upgrade head 
 ```
 just make sure you installed the packages using `pip install -r requirements.txt` in the python env of the project before that.
+
+the project's APIs will be available at [http://127:0:0:1:8000](http://127:0:0:1:8000)
