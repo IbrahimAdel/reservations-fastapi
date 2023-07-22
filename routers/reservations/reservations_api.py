@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from pydantic import NaiveDatetime
 
 from database.db import get_db
-from deps.auth import current_user
+from deps.authentication import current_user
 from .reservations_schemas import AddReservationSchema, UpdateReservationSchema, ReservationModelResponse, \
     AvailableSlot, DeleteReservationResponse, ReservationPageResponse
 from . import reservations_service

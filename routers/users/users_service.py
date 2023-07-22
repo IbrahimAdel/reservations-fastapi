@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from .users_schemas import AddUserSchema
-from deps import auth as AuthHandler
+from deps import authentication as AuthHandler
 from routers.auth.auth_repo import is_email_name_taken
 from . import users_repo as UsersRepo
 

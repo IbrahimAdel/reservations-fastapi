@@ -5,7 +5,7 @@ from database.db import get_db
 from deps.authorization import is_admin
 from utils.error_schemas import UnauthorizedResponse
 from . import tables_service
-from deps.auth import current_user
+from deps.authentication import current_user
 from routers.tables.tables_schemas import AddTableSchema, TableModelResponse, TablePageResponse, DeleteTableResponse
 
 router = APIRouter(prefix='/tables', tags=['tables'])

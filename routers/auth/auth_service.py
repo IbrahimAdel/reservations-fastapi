@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from deps.auth import encode_access_token, verify_password, get_password_hash, encode_refresh_token,\
+from deps.authentication import encode_access_token, verify_password, get_password_hash, encode_refresh_token,\
     decode_refresh_token
 from routers.auth.auth_schema import UserRegisterSchema, UserLoginSchema, RefreshTokensResponse
 from routers.auth.auth_repo import is_email_name_taken, is_restaurant_name_taken, create_admin, get_user_for_login
